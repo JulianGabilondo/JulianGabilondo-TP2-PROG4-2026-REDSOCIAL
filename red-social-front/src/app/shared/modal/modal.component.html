@@ -14,7 +14,16 @@
       <div class="icono">{{ d.tipo === 'exito' ? '✓' : d.tipo === 'error' ? '!' : 'i' }}</div>
       <h3>{{ d.titulo }}</h3>
       <p>{{ d.mensaje }}</p>
-      <button type="button" class="btn btn-primary" (click)="cerrar.emit()">Aceptar</button>
+
+      @if (d.confirmar) {
+        <!-- SPRINT 2: modo confirmación -->
+        <div class="modal-botones">
+          <button type="button" class="btn btn-ghost" (click)="cerrar.emit()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="aceptar.emit()">Confirmar</button>
+        </div>
+      } @else {
+        <button type="button" class="btn btn-primary" (click)="cerrar.emit()">Aceptar</button>
+      }
     </div>
   </div>
 }

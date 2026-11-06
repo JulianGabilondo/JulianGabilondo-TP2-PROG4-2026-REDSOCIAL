@@ -5,9 +5,11 @@ export interface ModalDatos {
   titulo: string;
   mensaje: string;
   tipo: 'exito' | 'error' | 'info';
+  // SPRINT 2: si es true, muestra los botones "Cancelar" y "Confirmar" (para eliminar)
+  confirmar?: boolean;
 }
 
-// SPRINT 1: modal reutilizable. El enunciado prohíbe alert(), se usa este componente.
+// Modal reutilizable. El enunciado prohíbe alert(), se usa este componente.
 @Component({
   selector: 'app-modal',
   standalone: true,
@@ -15,5 +17,6 @@ export interface ModalDatos {
 })
 export class ModalComponent {
   datos = input<ModalDatos | null>(null);
-  cerrar = output<void>(); // avisa al padre cuando el usuario cierra el modal
+  cerrar = output<void>(); // el usuario cierra o cancela
+  aceptar = output<void>(); // SPRINT 2: el usuario confirma (solo en modo confirmación)
 }

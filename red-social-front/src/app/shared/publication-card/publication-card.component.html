@@ -1,0 +1,44 @@
+@let p = publicacion();
+
+<article class="publicacion">
+  <header class="publicacion-cabecera">
+    @if (p.usuario.fotoPerfil) {
+      <img class="avatar avatar-chico" [src]="p.usuario.fotoPerfil" alt="Foto de {{ p.usuario.nombre }}" />
+    } @else {
+      <div class="avatar avatar-chico">{{ p.usuario.nombre.charAt(0) }}{{ p.usuario.apellido.charAt(0) }}</div>
+    }
+
+    <div class="publicacion-autor">
+      <strong>{{ p.usuario.nombre }} {{ p.usuario.apellido }}</strong>
+      <span>&#64;{{ p.usuario.nombreUsuario }} · {{ p.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+    </div>
+
+    @if (esMia()) {
+      <button type="button" class="btn btn-ghost btn-chico" [disabled]="procesando()" (click)="pedirConfirmacion()">
+        Eliminar
+      </button>
+    }
+  </header>
+
+  <h3 class="publicacion-titulo">{{ p.titulo }}</h3>
+  <p class="publicacion-mensaje">{{ p.mensaje }}</p>
+
+  @if (p.imagen) {
+    <img class="publicacion-imagen" [src]="p.imagen" alt="Imagen de la publicación {{ p.titulo }}" />
+  }
+
+  <footer class="publicacion-pie">
+    <button
+      type="button"
+      class="btn-meGusta"
+      [class.activo]="leGusta()"
+      [disabled]="procesando()"
+      (click)="alternarMeGusta()"
+    >
+      {{ leGusta() ? '♥' : '♡' }} Me gusta
+    </button>
+    <span class="contador">{{ cantidad() }}</span>
+  </footer>
+</article>
+
+<app-modal [datos]="modal()" (cerrar)="modal.set(null)" (aceptar)="confirmarEliminacion()" />

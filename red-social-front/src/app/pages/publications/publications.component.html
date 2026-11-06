@@ -1,8 +1,79 @@
 <h1 class="titulo-pagina">Publicaciones</h1>
 
+<!-- SPRINT 2: formulario para crear una publicación -->
+<section class="tarjeta nueva-publicacion">
+  <h2>Nueva publicación</h2>
 
-<section class="tarjeta vacio">
-  <div class="emoji">📝</div>
-  <h2>Todavía no hay publicaciones</h2>
-  <p>Cuando se puedan crear publicaciones, las vas a ver acá.</p>
+  <form [formGroup]="form" (ngSubmit)="publicar()" novalidate>
+    <div class="form-group">
+      <label for="titulo">Título</label>
+      <input id="titulo" class="input" formControlName="titulo" maxlength="100"
+             [class.invalido]="f.titulo.touched && f.titulo.invalid" />
+      @if (f.titulo.touched && f.titulo.invalid) {
+        <p class="error">El título es obligatorio (máximo 100 caracteres)</p>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="mensaje">Mensaje</label>
+      <textarea id="mensaje" class="input" formControlName="mensaje" rows="3" maxlength="1000"
+                placeholder="¿Qué querés compartir?"
+                [class.invalido]="f.mensaje.touched && f.mensaje.invalid"></textarea>
+      @if (f.mensaje.touched && f.mensaje.invalid) {
+        <p class="error">El mensaje es obligatorio (máximo 1000 caracteres)</p>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="imagen">Imagen (opcional)</label>
+      <input #inputArchivo id="imagen" type="file" class="input" accept="image/*" (change)="onArchivo($event)" />
+      @if (errorArchivo()) {
+        <p class="error">{{ errorArchivo() }}</p>
+      }
+      @if (vistaPrevia(); as src) {
+        <img class="vista-previa-publicacion" [src]="src" alt="Vista previa de la imagen" />
+      }
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="publicando()">
+      {{ publicando() ? 'Publicando...' : 'Publicar' }}
+    </button>
+  </form>
 </section>
+
+<!-- SPRINT 2: selector de orden -->
+<div class="barra-orden">
+  <label for="orden">Ordenar por</label>
+  <select id="orden" class="input" (change)="cambiarOrden($event)">
+    <option value="fecha" [selected]="orden() === 'fecha'">Más recientes</option>
+    <option value="meGusta" [selected]="orden() === 'meGusta'">Más me gusta</option>
+  </select>
+</div>
+
+<!-- SPRINT 2: listado, cada publicación es un componente -->
+@if (cargando()) {
+  <section class="tarjeta vacio"><p>Cargando publicaciones...</p></section>
+} @else if (publicaciones().length === 0) {
+  <section class="tarjeta vacio">
+    <div class="emoji">📝</div>
+    <h2>Todavía no hay publicaciones</h2>
+    <p>Sé el primero en publicar algo.</p>
+  </section>
+} @else {
+  @for (p of publicaciones(); track p._id) {
+    <app-publication-card [publicacion]="p" (eliminada)="cargar()" />
+  }
+
+  <!-- SPRINT 2: paginación -->
+  <nav class="paginacion" aria-label="Paginación">
+    <button type="button" class="btn btn-ghost" [disabled]="pagina() === 1" (click)="irAPagina(pagina() - 1)">
+      ← Anterior
+    </button>
+    <span>Página {{ pagina() }} de {{ totalPaginas() }}</span>
+    <button type="button" class="btn btn-ghost" [disabled]="pagina() === totalPaginas()" (click)="irAPagina(pagina() + 1)">
+      Siguiente →
+    </button>
+  </nav>
+}
+
+<app-modal [datos]="modal()" (cerrar)="modal.set(null)" />

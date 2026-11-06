@@ -1,13 +1,14 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
+import { authInterceptor } from './core/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    // SPRINT 1: permite hacer peticiones HTTP al back (el AuthService usa HttpClient)
-    provideHttpClient(),
+    // SPRINT 2: ahora las peticiones HTTP pasan por el interceptor que agrega el token
+    provideHttpClient(withInterceptors([authInterceptor])),
   ],
 };
