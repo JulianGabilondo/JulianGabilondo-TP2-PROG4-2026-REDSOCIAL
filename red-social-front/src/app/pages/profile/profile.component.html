@@ -32,6 +32,23 @@
     </dl>
   </section>
 
+  <!-- SPRINT 2: últimas 3 publicaciones del usuario (los comentarios se agregan en el Sprint 3) -->
+  <h2 class="subtitulo-seccion">Mis últimas publicaciones</h2>
+
+  @if (cargando()) {
+    <section class="tarjeta vacio"><p>Cargando publicaciones...</p></section>
+  } @else if (errorCarga()) {
+    <section class="tarjeta vacio"><p class="error">{{ errorCarga() }}</p></section>
+  } @else if (ultimas().length === 0) {
+    <section class="tarjeta vacio">
+      <div class="emoji">📝</div>
+      <p>Todavía no publicaste nada. <a routerLink="/publicaciones">Hacé tu primera publicación</a>.</p>
+    </section>
+  } @else {
+    @for (p of ultimas(); track p._id) {
+      <app-publication-card [publicacion]="p" (eliminada)="cargarUltimas()" />
+    }
+  }
 } @else {
   <section class="tarjeta vacio">
     <div class="emoji">🔒</div>
