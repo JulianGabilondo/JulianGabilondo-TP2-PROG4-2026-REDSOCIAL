@@ -1,0 +1,24 @@
+<header class="navbar">
+  <a class="marca" routerLink="/publicaciones">Red Social</a>
+
+  <nav>
+    <a routerLink="/publicaciones" routerLinkActive="activo">Publicaciones</a>
+    <a routerLink="/perfil" routerLinkActive="activo">Mi perfil</a>
+  </nav>
+
+  <div class="usuario">
+    @if (auth.usuario(); as u) {
+      <span>{{ u.nombreUsuario }}</span>
+      @if (u.fotoPerfil) {
+        <img class="avatar avatar-chico" [src]="u.fotoPerfil" alt="Tu foto de perfil" />
+      } @else {
+        <div class="avatar avatar-chico">{{ u.nombre.charAt(0) }}{{ u.apellido.charAt(0) }}</div>
+      }
+    }
+    <button type="button" class="btn btn-ghost" (click)="salir()">Salir</button>
+  </div>
+</header>
+
+<main class="contenedor">
+  <router-outlet />
+</main>

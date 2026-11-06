@@ -1,0 +1,122 @@
+<div class="auth-page">
+  <div class="auth-card ancha">
+    <h1>Crear cuenta</h1>
+    <p class="subtitulo">Completá tus datos para unirte a la red social</p>
+
+    <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+      <div class="fila">
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" class="input" formControlName="nombre"
+                 [class.invalido]="f.nombre.touched && f.nombre.invalid" />
+          @if (f.nombre.touched && f.nombre.errors?.['required']) {
+            <p class="error">El nombre es obligatorio</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="apellido">Apellido</label>
+          <input id="apellido" class="input" formControlName="apellido"
+                 [class.invalido]="f.apellido.touched && f.apellido.invalid" />
+          @if (f.apellido.touched && f.apellido.errors?.['required']) {
+            <p class="error">El apellido es obligatorio</p>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="correo">Correo electrónico</label>
+        <input id="correo" type="email" class="input" formControlName="correo" autocomplete="email"
+               [class.invalido]="f.correo.touched && f.correo.invalid" />
+        @if (f.correo.touched && f.correo.errors?.['required']) {
+          <p class="error">El correo es obligatorio</p>
+        }
+        @if (f.correo.touched && f.correo.errors?.['email']) {
+          <p class="error">Ingresá un correo válido (ej: nombre@correo.com)</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="nombreUsuario">Nombre de usuario</label>
+        <input id="nombreUsuario" class="input" formControlName="nombreUsuario" autocomplete="username"
+               [class.invalido]="f.nombreUsuario.touched && f.nombreUsuario.invalid" />
+        @if (f.nombreUsuario.touched && f.nombreUsuario.errors?.['required']) {
+          <p class="error">El nombre de usuario es obligatorio</p>
+        }
+        @if (f.nombreUsuario.touched && f.nombreUsuario.errors?.['minlength']) {
+          <p class="error">Debe tener al menos 3 caracteres</p>
+        }
+      </div>
+
+      <div class="fila">
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input id="password" type="password" class="input" formControlName="password"
+                 autocomplete="new-password"
+                 [class.invalido]="f.password.touched && f.password.invalid" />
+          @if (f.password.touched && f.password.errors) {
+            @if (f.password.errors['required']) { <p class="error">La contraseña es obligatoria</p> }
+            @if (f.password.errors['minlength']) { <p class="error">Debe tener al menos 8 caracteres</p> }
+            @if (f.password.errors['sinMayuscula']) { <p class="error">Debe incluir al menos una mayúscula</p> }
+            @if (f.password.errors['sinNumero']) { <p class="error">Debe incluir al menos un número</p> }
+          } @else {
+            <p class="ayuda">Mínimo 8 caracteres, una mayúscula y un número</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="repetirPassword">Repetir contraseña</label>
+          <input id="repetirPassword" type="password" class="input" formControlName="repetirPassword"
+                 autocomplete="new-password"
+                 [class.invalido]="f.repetirPassword.touched && (f.repetirPassword.invalid || form.hasError('noCoinciden'))" />
+          @if (f.repetirPassword.touched && f.repetirPassword.errors?.['required']) {
+            <p class="error">Repetí la contraseña</p>
+          } @else if (f.repetirPassword.touched && form.hasError('noCoinciden')) {
+            <p class="error">Las contraseñas no coinciden</p>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="fechaNacimiento">Fecha de nacimiento</label>
+        <input id="fechaNacimiento" type="date" class="input" formControlName="fechaNacimiento"
+               [class.invalido]="f.fechaNacimiento.touched && f.fechaNacimiento.invalid" />
+        @if (f.fechaNacimiento.touched && f.fechaNacimiento.errors?.['required']) {
+          <p class="error">La fecha de nacimiento es obligatoria</p>
+        }
+        @if (f.fechaNacimiento.touched && f.fechaNacimiento.errors?.['fechaFutura']) {
+          <p class="error">La fecha no puede ser futura</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="descripcion">Descripción breve</label>
+        <textarea id="descripcion" class="input" formControlName="descripcion" rows="3"
+                  placeholder="Contanos algo sobre vos..."
+                  [class.invalido]="f.descripcion.invalid"></textarea>
+        @if (f.descripcion.errors?.['maxlength']) {
+          <p class="error">La descripción no puede superar los 200 caracteres</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="fotoPerfil">Foto de perfil</label>
+        <input id="fotoPerfil" type="file" class="input" accept="image/*" (change)="onArchivo($event)" />
+        @if (errorArchivo()) {
+          <p class="error">{{ errorArchivo() }}</p>
+        }
+        @if (vistaPrevia(); as src) {
+          <img class="avatar vista-previa" [src]="src" alt="Vista previa de tu foto de perfil" />
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="cargando()">
+        {{ cargando() ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
+    </form>
+
+    <p class="enlace-inferior">¿Ya tenés cuenta? <a routerLink="/login">Iniciá sesión</a></p>
+  </div>
+</div>
+
+<app-modal [datos]="modal()" (cerrar)="cerrarModal()" />

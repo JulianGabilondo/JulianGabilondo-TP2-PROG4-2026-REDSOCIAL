@@ -1,0 +1,20 @@
+@if (datos(); as d) {
+  <!-- Click en el fondo oscuro cierra el modal -->
+  <div class="modal-fondo" (click)="cerrar.emit()">
+    <!-- stopPropagation evita que un click dentro del cuadro lo cierre -->
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      [class.modal-exito]="d.tipo === 'exito'"
+      [class.modal-error]="d.tipo === 'error'"
+      [class.modal-info]="d.tipo === 'info'"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="icono">{{ d.tipo === 'exito' ? '✓' : d.tipo === 'error' ? '!' : 'i' }}</div>
+      <h3>{{ d.titulo }}</h3>
+      <p>{{ d.mensaje }}</p>
+      <button type="button" class="btn btn-primary" (click)="cerrar.emit()">Aceptar</button>
+    </div>
+  </div>
+}

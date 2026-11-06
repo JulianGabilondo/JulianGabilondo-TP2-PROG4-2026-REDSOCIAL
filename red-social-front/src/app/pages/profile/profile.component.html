@@ -1,0 +1,41 @@
+<h1 class="titulo-pagina">Mi perfil</h1>
+
+@if (auth.usuario(); as u) {
+  <section class="tarjeta">
+    <div class="perfil-cabecera">
+      @if (u.fotoPerfil) {
+        <img class="avatar" [src]="u.fotoPerfil" alt="Foto de perfil de {{ u.nombre }}" />
+      } @else {
+        <div class="avatar">{{ u.nombre.charAt(0) }}{{ u.apellido.charAt(0) }}</div>
+      }
+      <div>
+        <h2>{{ u.nombre }} {{ u.apellido }}</h2>
+        <p class="arroba">&#64;{{ u.nombreUsuario }}</p>
+        <span class="etiqueta">{{ u.perfil }}</span>
+      </div>
+    </div>
+
+    <dl class="datos">
+      <div>
+        <dt>Correo</dt>
+        <dd>{{ u.correo }}</dd>
+      </div>
+      <div>
+        <dt>Fecha de nacimiento</dt>
+        <!-- Se fuerza UTC para que no se corra un día por la zona horaria -->
+        <dd>{{ u.fechaNacimiento | date: 'dd/MM/yyyy' : 'UTC' }}</dd>
+      </div>
+      <div>
+        <dt>Descripción</dt>
+        <dd>{{ u.descripcion || 'Sin descripción' }}</dd>
+      </div>
+    </dl>
+  </section>
+
+} @else {
+  <section class="tarjeta vacio">
+    <div class="emoji">🔒</div>
+    <h2>No hay una sesión iniciada</h2>
+    <p><a routerLink="/login">Iniciá sesión</a> para ver tu perfil.</p>
+  </section>
+}
