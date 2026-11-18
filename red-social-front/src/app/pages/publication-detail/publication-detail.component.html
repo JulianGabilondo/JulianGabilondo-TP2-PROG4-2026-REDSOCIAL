@@ -1,0 +1,16 @@
+<a class="enlace-volver" routerLink="/publicaciones">← Volver a publicaciones</a>
+
+@if (cargando()) {
+  <section class="tarjeta vacio"><p>Cargando publicación...</p></section>
+} @else if (publicacion(); as p) {
+  <app-publication-card [publicacion]="p" [grande]="true" (eliminada)="volver()" />
+  <app-comments [publicacionId]="p._id" />
+} @else if (noEncontrada()) {
+  <section class="tarjeta vacio">
+    <div class="emoji">🔍</div>
+    <h2>La publicación no existe</h2>
+    <p>Puede que haya sido eliminada. <a routerLink="/publicaciones">Volver al listado</a>.</p>
+  </section>
+} @else {
+  <section class="tarjeta vacio"><p class="error">{{ errorCarga() }}</p></section>
+}

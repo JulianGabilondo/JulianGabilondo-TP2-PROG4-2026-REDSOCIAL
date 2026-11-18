@@ -1,10 +1,15 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/auth.guard';
 import { MainLayoutComponent } from './shared/main-layout/main-layout.component';
 
-// SPRINT 1: navegación libre entre pantallas (sin guards, el enunciado lo pide así).
-// Los guards y la protección de rutas llegan en el Sprint 3.
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'login' },
+  // SPRINT 3: al iniciar la app se muestra la pantalla de carga, que valida el token
+  // y redirige a publicaciones o al login
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./pages/loading/loading.component').then((m) => m.LoadingComponent),
+  },
 
   // Pantallas de acceso (sin barra de navegación)
   {
@@ -16,15 +21,24 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register.component').then((m) => m.RegisterComponent),
   },
 
-  // Pantallas con barra de navegación (usan el layout como contenedor)
+  // Pantallas internas (con barra de navegación). SPRINT 3: protegidas, solo con sesión iniciada.
   {
     path: '',
     component: MainLayoutComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: 'publicaciones',
         loadComponent: () =>
           import('./pages/publications/publications.component').then((m) => m.PublicationsComponent),
+      },
+      // SPRINT 3: página de una publicación con sus comentarios
+      {
+        path: 'publicaciones/:id',
+        loadComponent: () =>
+          import('./pages/publication-detail/publication-detail.component').then(
+            (m) => m.PublicationDetailComponent,
+          ),
       },
       {
         path: 'perfil',
@@ -33,5 +47,6 @@ export const routes: Routes = [
     ],
   },
 
-  { path: '**', redirectTo: 'login' },
+  // Cualquier otra ruta vuelve a la pantalla de carga, que decide a dónde ir
+  { path: '**', redirectTo: '' },
 ];

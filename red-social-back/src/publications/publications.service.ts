@@ -81,6 +81,33 @@ export class PublicationsService {
     return { data, total, limit, offset };
   }
 
+    // SPRINT 3: trae UNA publicación (para la página de detalle), con los mismos datos que el listado
+  async findOne(id: string) {
+    const resultado = await this.publicationModel.aggregate([
+      { $match: { _id: new Types.ObjectId(id), activo: true } },
+      { $addFields: { cantidadMeGusta: { $size: { $ifNull: ['$meGusta', []] } } } },
+      // Trae al autor y se queda solo con los datos públicos (nunca el password)
+      { $lookup: { from: 'users', localField: 'usuario', foreignField: '_id', as: 'usuario' } },
+      { $unwind: '$usuario' },
+      {
+        $addFields: {
+          usuario: {
+            _id: '$usuario._id',
+            nombre: '$usuario.nombre',
+            apellido: '$usuario.apellido',
+            nombreUsuario: '$usuario.nombreUsuario',
+            fotoPerfil: '$usuario.fotoPerfil',
+          },
+        },
+      },
+    ]);
+
+    if (resultado.length === 0) {
+      throw new NotFoundException('Publicación no encontrada');
+    }
+    return resultado[0];
+  }
+
   // SPRINT 2: baja lógica. Solo el autor o un administrador.
   async remove(id: string, userId: string, role: string) {
     const publication = await this.findActiveOrFail(id);

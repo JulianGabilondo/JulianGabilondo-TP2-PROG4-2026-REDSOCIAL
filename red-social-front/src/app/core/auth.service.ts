@@ -30,16 +30,48 @@ export class AuthService {
   // Usuario logueado (se recupera del navegador si ya había iniciado sesión)
   usuario = signal<Usuario | null>(this.leerUsuario());
 
-  // SPRINT 1: registro. Recibe un FormData porque incluye la foto de perfil (archivo).
+  // SPRINT 3: el registro también guarda el token (queda con la sesión iniciada)
   register(datos: FormData): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.api}/register`, datos);
+    return this.http
+      .post<AuthResponse>(`${this.api}/register`, datos)
+      .pipe(tap((res) => this.guardarSesion(res)));
   }
 
-  // SPRINT 1: login. Si sale bien, guarda la sesión en el navegador.
+  // SPRINT 1: login. Si sale bien, guarda el token y el usuario en el navegador.
   login(emailOrUsername: string, password: string): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.api}/login`, { emailOrUsername, password })
       .pipe(tap((res) => this.guardarSesion(res)));
+  }
+
+  // SPRINT 3: valida el token guardado contra el back (POST /auth/authorize).
+  // Si es válido, actualiza los datos del usuario; si no, el back responde 401.
+  autorizar(): Observable<{ message: string; user: Usuario }> {
+    return this.http.post<{ message: string; user: Usuario }>(`${this.api}/authorize`, {}).pipe(
+      tap((res) => {
+        localStorage.setItem('usuario', JSON.stringify(res.user));
+        this.usuario.set(res.user);
+      }),
+    );
+  }
+
+  // SPRINT 3: pide un token nuevo (POST /auth/refresh) y lo guarda
+  refrescar(): Observable<{ message: string; token: string }> {
+    return this.http
+      .post<{ message: string; token: string }>(`${this.api}/refresh`, {})
+      .pipe(tap((res) => localStorage.setItem('token', res.token)));
+  }
+
+  // Edición del perfil (PATCH /users/me). Actualiza el usuario guardado en el navegador.
+  actualizarPerfil(datos: FormData): Observable<{ message: string; user: Usuario }> {
+    return this.http
+      .patch<{ message: string; user: Usuario }>(`${environment.apiUrl}/users/me`, datos)
+      .pipe(
+        tap((res) => {
+          localStorage.setItem('usuario', JSON.stringify(res.user));
+          this.usuario.set(res.user);
+        }),
+      );
   }
 
   logout(): void {
@@ -48,7 +80,7 @@ export class AuthService {
     this.usuario.set(null);
   }
 
-  // Guarda token y usuario (el manejo completo del token se profundiza en el Sprint 3)
+  // Guarda token y usuario en el navegador
   private guardarSesion(res: AuthResponse): void {
     localStorage.setItem('token', res.token);
     localStorage.setItem('usuario', JSON.stringify(res.user));

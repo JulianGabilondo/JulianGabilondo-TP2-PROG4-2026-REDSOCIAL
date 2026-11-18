@@ -101,7 +101,8 @@ export class RegisterComponent {
         this.cargando.set(false);
         this.modal.set({
           titulo: '¡Cuenta creada!',
-          mensaje: 'Tu usuario se registró correctamente. Ahora podés iniciar sesión.',
+          // SPRINT 3: el registro guarda el token, por eso ya queda con la sesión iniciada
+          mensaje: 'Tu usuario se registró correctamente. Ya iniciaste sesión.',
           tipo: 'exito',
         });
       },
@@ -116,12 +117,12 @@ export class RegisterComponent {
     });
   }
 
-  // Si el registro fue exitoso, al cerrar el modal se va al login
+  // Si el registro fue exitoso, al cerrar el modal se va a Publicaciones
   cerrarModal() {
     const fueExito = this.modal()?.tipo === 'exito';
     this.modal.set(null);
     if (fueExito) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/publicaciones']); // SPRINT 3: antes iba al login
     }
   }
 }

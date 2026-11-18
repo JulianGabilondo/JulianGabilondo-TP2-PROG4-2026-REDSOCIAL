@@ -2,7 +2,7 @@
   <a class="marca" routerLink="/publicaciones">Red Social</a>
 
   <nav>
-    <a routerLink="/publicaciones" routerLinkActive="activo">Publicaciones</a>
+    <a routerLink="/publicaciones" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">Publicaciones</a>
     <a routerLink="/perfil" routerLinkActive="activo">Mi perfil</a>
   </nav>
 
@@ -22,3 +22,10 @@
 <main class="contenedor">
   <router-outlet />
 </main>
+
+<!-- SPRINT 3: aviso de que quedan 5 minutos de sesión (confirmar = extender la sesión) -->
+<app-modal
+  [datos]="session.aviso()"
+  (cerrar)="session.descartarAviso()"
+  (aceptar)="session.extender()"
+/>

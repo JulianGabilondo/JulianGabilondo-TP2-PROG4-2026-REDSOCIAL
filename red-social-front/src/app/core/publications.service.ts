@@ -50,6 +50,11 @@ export class PublicationsService {
     return this.http.get<ListaPublicaciones>(this.api, { params });
   }
 
+    // SPRINT 3: GET /publications/:id (una sola publicación, para la página de detalle)
+  obtener(id: string): Observable<Publicacion> {
+    return this.http.get<Publicacion>(`${this.api}/${id}`);
+  }
+
   // POST /publications (FormData porque puede incluir una imagen)
   crear(datos: FormData): Observable<unknown> {
     return this.http.post(this.api, datos);
