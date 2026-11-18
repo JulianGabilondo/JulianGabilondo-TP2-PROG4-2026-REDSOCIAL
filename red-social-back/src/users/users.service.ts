@@ -1,13 +1,19 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    // SPRINT 2: se necesita para subir la nueva foto de perfil
+    private cloudinaryService: CloudinaryService,
+  ) {}
 
   // SPRINT 1: verifica que correo y nombre de usuario no existan todavía.
   // Se llama ANTES de subir la imagen para no dejar fotos huérfanas en Cloudinary.
@@ -49,6 +55,55 @@ export class UsersService {
       .findOne({ $or: [{ correo: valor.toLowerCase() }, { nombreUsuario: valor }] })
       .select('+password')
       .exec();
+  }
+
+  // SPRINT 2: busca un usuario por id
+  findById(id: string): Promise<UserDocument | null> {
+    return this.userModel.findById(id).exec();
+  }
+
+  // SPRINT 2: edita el perfil del usuario logueado
+  async updateProfile(
+    id: string,
+    dto: UpdateProfileDto,
+    file?: Express.Multer.File,
+  ): Promise<UserDocument> {
+    // 1) Si cambia el correo o el nombre de usuario, no pueden pertenecer a OTRO usuario
+    const condiciones: Record<string, string>[] = [];
+    if (dto.correo) condiciones.push({ correo: dto.correo.toLowerCase() });
+    if (dto.nombreUsuario) condiciones.push({ nombreUsuario: dto.nombreUsuario });
+
+    if (condiciones.length) {
+      const existente = await this.userModel.findOne({ _id: { $ne: id }, $or: condiciones });
+      if (existente) {
+        throw new ConflictException('El correo o el nombre de usuario ya están registrados');
+      }
+    }
+
+    // 2) Arma los cambios; si vino una foto nueva, se sube a Cloudinary y se guarda la URL
+    const cambios: Record<string, unknown> = { ...dto };
+    if (dto.correo) cambios.correo = dto.correo.toLowerCase();
+    if (file) {
+      cambios.fotoPerfil = await this.cloudinaryService.uploadImage(file, 'red-social/perfiles');
+    }
+
+    // 3) Actualiza y devuelve el usuario ya modificado
+    try {
+      const user = await this.userModel.findByIdAndUpdate(
+        id,
+        { $set: cambios },
+        { returnDocument: 'after', runValidators: true },
+      );
+      if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+      return user;
+    } catch (error: any) {
+      if (error?.code === 11000) {
+        throw new ConflictException('El correo o el nombre de usuario ya están registrados');
+      }
+      throw error;
+    }
   }
 
   // Convierte el documento a un objeto "seguro" para devolver al front (sin password ni __v)

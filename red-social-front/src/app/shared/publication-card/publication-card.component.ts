@@ -1,17 +1,18 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { mensajeError } from '../../core/http-errors';
 import { Publicacion, PublicationsService } from '../../core/publications.service';
 import { ModalComponent, ModalDatos } from '../modal/modal.component';
 
-// SPRINT 2: cada publicación es un componente (lo pide el enunciado).
+// Cada publicación es un componente (lo pide el enunciado).
 // Maneja por sí mismo el me gusta y la eliminación; al eliminar avisa al padre con "eliminada".
 @Component({
   selector: 'app-publication-card',
   standalone: true,
-  imports: [DatePipe, ModalComponent],
+  imports: [DatePipe, RouterLink, ModalComponent],
   templateUrl: './publication-card.component.html',
 })
 export class PublicationCardComponent {
@@ -19,6 +20,8 @@ export class PublicationCardComponent {
   private servicio = inject(PublicationsService);
 
   publicacion = input.required<Publicacion>();
+  // SPRINT 3: true en la página de la publicación (se muestra en grande y sin el enlace a comentarios)
+  grande = input(false);
   eliminada = output<void>();
 
   // linkedSignal: toma el valor de la publicación, pero se puede modificar localmente

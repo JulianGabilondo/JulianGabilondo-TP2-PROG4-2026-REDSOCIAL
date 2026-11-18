@@ -262,3 +262,94 @@ textarea.input { resize: vertical; min-height: 80px; }
 
 .modal-botones { display: flex; gap: 12px; }
 .modal-botones .btn { flex: 1; }
+
+/* ---------- SPRINT 2: edición del perfil ---------- */
+.perfil-acciones { margin-top: 24px; }
+.acciones-form { display: flex; gap: 12px; margin-top: 8px; }
+.acciones-form .btn { flex: 1; }
+
+/* ---------- SPRINT 3: pantalla de carga ---------- */
+.pantalla-carga {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--muted);
+}
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #e0e7ff;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* ---------- SPRINT 3: publicación en grande ---------- */
+.enlace-volver { display: inline-block; margin-bottom: 16px; }
+.publicacion.grande { padding: 28px; }
+.publicacion.grande .publicacion-titulo { font-size: 1.6rem; }
+.publicacion.grande .publicacion-mensaje { font-size: 1.05rem; }
+.publicacion.grande .publicacion-imagen { max-height: 640px; object-fit: contain; background: var(--bg); }
+.enlace-comentarios { margin-left: auto; font-size: 0.9rem; }
+
+/* ---------- SPRINT 3: comentarios ---------- */
+.comentarios {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.comentarios h2 { margin: 0 0 16px; font-size: 1.05rem; }
+.comentario-nuevo { margin-bottom: 20px; }
+.btn-comentar { width: auto; margin-top: 10px; }
+.comentario { padding: 14px 0; border-top: 1px solid var(--border); }
+.comentario-cabecera { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.comentario-mensaje { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.editado { color: var(--muted); font-size: 0.8rem; }
+.btn-cargar-mas { width: 100%; margin-top: 12px; }
+.solo-lectores { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- Texto de las publicaciones: que no se salga de su lugar ---------- */
+
+/* Siempre: corta las palabras largas (por ejemplo "aaaaaaaa...") para que no se desborden */
+.publicacion { min-width: 0; overflow: hidden; }
+.publicacion-titulo,
+.publicacion-mensaje {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* En el listado y en Mi perfil: el título se limita a 2 líneas y el mensaje a 3, con "..." al final */
+.publicacion:not(.grande) .publicacion-titulo {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.publicacion:not(.grande) .publicacion-mensaje {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* En la página de la publicación (versión grande) se muestra el texto completo, sin cortar */
+.publicacion.grande .publicacion-titulo,
+.publicacion.grande .publicacion-mensaje {
+  display: block;
+  overflow: visible;
+}
+
+/* Nombre del autor muy largo: se corta con "..." en vez de empujar el botón Eliminar */
+.publicacion-autor strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

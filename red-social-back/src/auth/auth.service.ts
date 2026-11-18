@@ -6,6 +6,15 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserDocument } from '../users/schemas/user.schema';
+import type { JwtUser } from './jwt.strategy';
+
+// Datos que viajan dentro del token
+interface TokenPayload {
+  sub: string;
+  email: string;
+  username: string;
+  role: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -55,13 +64,39 @@ export class AuthService {
     };
   }
 
-  // Genera el JWT (vence a los 15 minutos, configurado en AuthModule)
+  // SPRINT 3: autorizar. El guard ya validó que el token sea válido y no esté vencido
+  // (si no, respondió 401). Acá se devuelven los datos del usuario.
+  async authorize(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+    return { message: 'Token válido', user: this.usersService.toResponse(user) };
+  }
+
+  // SPRINT 3: refrescar. Devuelve un token nuevo con la MISMA payload y 15 minutos de vencimiento.
+  refresh(user: JwtUser) {
+    const token = this.sign({
+      sub: user.userId,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+    });
+    return { message: 'Token renovado', token };
+  }
+
+  // Genera el JWT al registrarse o iniciar sesión
   private generateToken(user: UserDocument): string {
-    return this.jwtService.sign({
+    return this.sign({
       sub: user._id.toString(), // id del usuario (estándar JWT)
       email: user.correo,
       username: user.nombreUsuario,
       role: user.perfil, // "usuario" o "administrador"
     });
+  }
+
+  // Firma el token (vence a los 15 minutos, configurado en AuthModule)
+  private sign(payload: TokenPayload): string {
+    return this.jwtService.sign(payload);
   }
 }

@@ -1,6 +1,6 @@
 @let p = publicacion();
 
-<article class="publicacion">
+<article class="publicacion" [class.grande]="grande()">
   <header class="publicacion-cabecera">
     @if (p.usuario.fotoPerfil) {
       <img class="avatar avatar-chico" [src]="p.usuario.fotoPerfil" alt="Foto de {{ p.usuario.nombre }}" />
@@ -38,6 +38,11 @@
       {{ leGusta() ? '♥' : '♡' }} Me gusta
     </button>
     <span class="contador">{{ cantidad() }}</span>
+
+    <!-- SPRINT 3: enlace a la página de la publicación con sus comentarios -->
+    @if (!grande()) {
+      <a class="enlace-comentarios" [routerLink]="['/publicaciones', p._id]">💬 Ver y comentar</a>
+    }
   </footer>
 </article>
 

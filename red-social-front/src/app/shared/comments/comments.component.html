@@ -1,0 +1,87 @@
+<section class="comentarios">
+  <h2>Comentarios ({{ total() }})</h2>
+
+  <!-- Escribir un comentario (no se muestra en modo solo lectura) -->
+  @if (!soloLectura()) {
+    <div class="comentario-nuevo">
+      <label for="nuevo-comentario-{{ publicacionId() }}" class="solo-lectores">Escribí un comentario</label>
+      <textarea
+        id="nuevo-comentario-{{ publicacionId() }}"
+        class="input"
+        rows="2"
+        maxlength="500"
+        placeholder="Escribí un comentario..."
+        [formControl]="nuevo"
+        [class.invalido]="nuevo.touched && nuevo.invalid"
+      ></textarea>
+      @if (nuevo.touched && nuevo.invalid) {
+        <p class="error">El comentario no puede estar vacío (máximo 500 caracteres)</p>
+      }
+      <button type="button" class="btn btn-primary btn-comentar" [disabled]="enviando()" (click)="enviar()">
+        {{ enviando() ? 'Comentando...' : 'Comentar' }}
+      </button>
+    </div>
+  }
+
+  <!-- Listado: más recientes primero, uno debajo del otro -->
+  @if (cargando()) {
+    <p class="ayuda">Cargando comentarios...</p>
+  } @else if (errorCarga()) {
+    <p class="error">{{ errorCarga() }}</p>
+  } @else if (comentarios().length === 0) {
+    <p class="ayuda">Todavía no hay comentarios.</p>
+  } @else {
+    @for (c of comentarios(); track c._id) {
+      <article class="comentario">
+        <header class="comentario-cabecera">
+          @if (c.usuario.fotoPerfil) {
+            <img class="avatar avatar-chico" [src]="c.usuario.fotoPerfil" alt="Foto de {{ c.usuario.nombre }}" />
+          } @else {
+            <div class="avatar avatar-chico">{{ c.usuario.nombre.charAt(0) }}{{ c.usuario.apellido.charAt(0) }}</div>
+          }
+          <div class="publicacion-autor">
+            <strong>{{ c.usuario.nombre }} {{ c.usuario.apellido }}</strong>
+            <span>
+              &#64;{{ c.usuario.nombreUsuario }} · {{ c.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+              <!-- Un comentario editado anuncia que fue editado -->
+              @if (c.modificado) {
+                <em class="editado">(editado)</em>
+              }
+            </span>
+          </div>
+
+          @if (!soloLectura() && esMio(c) && editandoId() !== c._id) {
+            <button type="button" class="btn btn-ghost btn-chico" (click)="empezarEdicion(c)">Editar</button>
+          }
+        </header>
+
+        @if (editandoId() === c._id) {
+          <textarea class="input" rows="2" maxlength="500" [formControl]="edicion"
+                    [class.invalido]="edicion.touched && edicion.invalid"></textarea>
+          @if (edicion.touched && edicion.invalid) {
+            <p class="error">El comentario no puede estar vacío (máximo 500 caracteres)</p>
+          }
+          <div class="acciones-form">
+            <button type="button" class="btn btn-ghost btn-chico" [disabled]="guardandoEdicion()" (click)="cancelarEdicion()">
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary btn-chico" [disabled]="guardandoEdicion()" (click)="guardarEdicion(c)">
+              {{ guardandoEdicion() ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        } @else {
+          <p class="comentario-mensaje">{{ c.mensaje }}</p>
+        }
+      </article>
+    }
+
+    <!-- "Cargar más": trae los siguientes sin dejar de mostrar los anteriores -->
+    @if (hayMas()) {
+      <button type="button" class="btn btn-ghost btn-cargar-mas" [disabled]="cargandoMas()" (click)="cargarMas()">
+        {{ cargandoMas() ? 'Cargando...' : 'Cargar más' }}
+      </button>
+    }
+  }
+</section>
+
+<app-modal [datos]="modal()" (cerrar)="modal.set(null)" />

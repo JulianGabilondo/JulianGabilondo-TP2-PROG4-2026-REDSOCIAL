@@ -15,21 +15,115 @@
       </div>
     </div>
 
-    <dl class="datos">
-      <div>
-        <dt>Correo</dt>
-        <dd>{{ u.correo }}</dd>
+    @if (!editando()) {
+      <dl class="datos">
+        <div>
+          <dt>Correo</dt>
+          <dd>{{ u.correo }}</dd>
+        </div>
+        <div>
+          <dt>Fecha de nacimiento</dt>
+          <!-- Se fuerza UTC para que no se corra un día por la zona horaria -->
+          <dd>{{ u.fechaNacimiento | date: 'dd/MM/yyyy' : 'UTC' }}</dd>
+        </div>
+        <div>
+          <dt>Descripción</dt>
+          <dd>{{ u.descripcion || 'Sin descripción' }}</dd>
+        </div>
+      </dl>
+
+      <div class="perfil-acciones">
+        <button type="button" class="btn btn-ghost" (click)="empezarEdicion()">Editar perfil</button>
       </div>
-      <div>
-        <dt>Fecha de nacimiento</dt>
-        <!-- Se fuerza UTC para que no se corra un día por la zona horaria -->
-        <dd>{{ u.fechaNacimiento | date: 'dd/MM/yyyy' : 'UTC' }}</dd>
-      </div>
-      <div>
-        <dt>Descripción</dt>
-        <dd>{{ u.descripcion || 'Sin descripción' }}</dd>
-      </div>
-    </dl>
+    } @else {
+      <!-- SPRINT 2: formulario de edición del perfil -->
+      <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+        <div class="fila">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" class="input" formControlName="nombre"
+                   [class.invalido]="f.nombre.touched && f.nombre.invalid" />
+            @if (f.nombre.touched && f.nombre.errors?.['required']) {
+              <p class="error">El nombre es obligatorio</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="apellido">Apellido</label>
+            <input id="apellido" class="input" formControlName="apellido"
+                   [class.invalido]="f.apellido.touched && f.apellido.invalid" />
+            @if (f.apellido.touched && f.apellido.errors?.['required']) {
+              <p class="error">El apellido es obligatorio</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="correo">Correo electrónico</label>
+          <input id="correo" type="email" class="input" formControlName="correo"
+                 [class.invalido]="f.correo.touched && f.correo.invalid" />
+          @if (f.correo.touched && f.correo.errors?.['required']) {
+            <p class="error">El correo es obligatorio</p>
+          }
+          @if (f.correo.touched && f.correo.errors?.['email']) {
+            <p class="error">Ingresá un correo válido (ej: nombre@correo.com)</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="nombreUsuario">Nombre de usuario</label>
+          <input id="nombreUsuario" class="input" formControlName="nombreUsuario"
+                 [class.invalido]="f.nombreUsuario.touched && f.nombreUsuario.invalid" />
+          @if (f.nombreUsuario.touched && f.nombreUsuario.errors?.['required']) {
+            <p class="error">El nombre de usuario es obligatorio</p>
+          }
+          @if (f.nombreUsuario.touched && f.nombreUsuario.errors?.['minlength']) {
+            <p class="error">Debe tener al menos 3 caracteres</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="fechaNacimiento">Fecha de nacimiento</label>
+          <input id="fechaNacimiento" type="date" class="input" formControlName="fechaNacimiento"
+                 [class.invalido]="f.fechaNacimiento.touched && f.fechaNacimiento.invalid" />
+          @if (f.fechaNacimiento.touched && f.fechaNacimiento.errors?.['required']) {
+            <p class="error">La fecha de nacimiento es obligatoria</p>
+          }
+          @if (f.fechaNacimiento.touched && f.fechaNacimiento.errors?.['fechaFutura']) {
+            <p class="error">La fecha no puede ser futura</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción breve</label>
+          <textarea id="descripcion" class="input" formControlName="descripcion" rows="3"
+                    [class.invalido]="f.descripcion.invalid"></textarea>
+          @if (f.descripcion.errors?.['maxlength']) {
+            <p class="error">La descripción no puede superar los 200 caracteres</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="fotoPerfil">Cambiar foto de perfil (opcional)</label>
+          <input id="fotoPerfil" type="file" class="input" accept="image/*" (change)="onArchivo($event)" />
+          @if (errorArchivo()) {
+            <p class="error">{{ errorArchivo() }}</p>
+          }
+          @if (vistaPrevia(); as src) {
+            <img class="avatar vista-previa" [src]="src" alt="Vista previa de tu nueva foto" />
+          }
+        </div>
+
+        <div class="acciones-form">
+          <button type="button" class="btn btn-ghost" [disabled]="guardando()" (click)="cancelarEdicion()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    }
   </section>
 
   <!-- SPRINT 2: últimas 3 publicaciones del usuario (los comentarios se agregan en el Sprint 3) -->
@@ -45,8 +139,10 @@
       <p>Todavía no publicaste nada. <a routerLink="/publicaciones">Hacé tu primera publicación</a>.</p>
     </section>
   } @else {
-    @for (p of ultimas(); track p._id) {
+        @for (p of ultimas(); track p._id) {
       <app-publication-card [publicacion]="p" (eliminada)="cargarUltimas()" />
+      <!-- SPRINT 3: comentarios de cada publicación (solo lectura, de a 3) -->
+      <app-comments [publicacionId]="p._id" [soloLectura]="true" [limite]="3" />
     }
   }
 } @else {
@@ -56,3 +152,5 @@
     <p><a routerLink="/login">Iniciá sesión</a> para ver tu perfil.</p>
   </section>
 }
+
+<app-modal [datos]="modal()" (cerrar)="modal.set(null)" />

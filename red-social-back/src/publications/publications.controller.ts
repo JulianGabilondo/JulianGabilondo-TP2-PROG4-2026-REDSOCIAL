@@ -47,6 +47,13 @@ export class PublicationsController {
     return this.publicationsService.findAll(query);
   }
 
+    // SPRINT 3: GET /api/publications/:id  (una sola publicación)
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  findOne(@Param() { id }: IdParamDto) {
+    return this.publicationsService.findOne(id);
+  }
+  
   // DELETE /api/publications/:id  (baja lógica, solo el autor o un administrador)
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
