@@ -5,6 +5,9 @@ import { AuthService } from './auth.service';
 
 const MINUTO = 60 * 1000;
 
+const AVISAR_ANTES_DE_VENCER = 1 * MINUTO;
+const DURACION_TOKEN_TEXTO = '3 minutos';
+
 // SPRINT 3: controla el tiempo de la sesión.
 // El token vence a los 15 minutos. A los 10 minutos (quedan 5) se muestra un modal que pregunta
 // si se quiere extender la sesión; si se acepta, se refresca el token.
@@ -37,8 +40,8 @@ export class SessionService {
       return;
     }
 
-    // Aviso 5 minutos antes de vencer (si ya falta menos, se avisa enseguida)
-    this.temporizadorAviso = setTimeout(() => this.mostrarAviso(), Math.max(restante - 5 * MINUTO, 0));
+    // Aviso 1 minuto antes de vencer (si ya falta menos, se avisa enseguida)
+    this.temporizadorAviso = setTimeout(() => this.mostrarAviso(), Math.max(restante - AVISAR_ANTES_DE_VENCER, 0));
     // Si no se extiende, al vencer el token se vuelve al login
     this.temporizadorVencimiento = setTimeout(() => this.cerrarSesion(), restante);
   }
@@ -51,7 +54,7 @@ export class SessionService {
         this.iniciar();
         this.aviso.set({
           titulo: 'Sesión extendida',
-          mensaje: 'Tu sesión se renovó por 15 minutos más.',
+          mensaje: 'Tu sesión se renovó por ${DURACION_TOKEN_TEXTO} más.',
           tipo: 'exito',
         });
       },
