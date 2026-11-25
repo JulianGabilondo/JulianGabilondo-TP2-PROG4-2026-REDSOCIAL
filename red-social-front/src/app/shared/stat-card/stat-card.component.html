@@ -1,0 +1,39 @@
+<section class="tarjeta stat-card">
+  <h2>{{ titulo() }}</h2>
+  @if (descripcion()) {
+    <p class="ayuda">{{ descripcion() }}</p>
+  }
+
+  <!-- Lapso de tiempo elegido por el usuario -->
+  <div class="rango-fechas">
+    <label>
+      Desde
+      <input type="date" class="input" [value]="desde()" [max]="hasta()" (change)="cambiarDesde($event)" />
+    </label>
+    <label>
+      Hasta
+      <input type="date" class="input" [value]="hasta()" [min]="desde()" [max]="hoy" (change)="cambiarHasta($event)" />
+    </label>
+  </div>
+
+  @if (!rangoValido()) {
+    <p class="error">La fecha "desde" no puede ser posterior a la fecha "hasta".</p>
+  } @else if (cargando()) {
+    <p class="ayuda stat-estado">Cargando estadística...</p>
+  } @else if (error()) {
+    <p class="error">{{ error() }}</p>
+  } @else if (vacio()) {
+    <p class="ayuda stat-estado">No hay datos en este lapso de tiempo.</p>
+  } @else if (resultado(); as r) {
+    @if (r.total !== undefined) {
+      <p class="stat-total">Total en el lapso: <strong>{{ r.total }}</strong></p>
+    }
+    <app-chart
+      [tipo]="tipo()"
+      [etiquetas]="r.etiquetas"
+      [datos]="r.datos"
+      [nombreDatos]="nombreDatos()"
+      [horizontal]="horizontal()"
+    />
+  }
+</section>

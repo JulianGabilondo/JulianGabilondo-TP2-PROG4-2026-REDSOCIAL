@@ -3,12 +3,13 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { SessionService } from '../../core/session.service';
 import { ModalComponent } from '../modal/modal.component';
+import { SoloAdminDirective } from '../directives/solo-admin.directive';
 
 // Contenedor con la barra de navegación para las pantallas internas
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, ModalComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ModalComponent, SoloAdminDirective],
   templateUrl: './main-layout.component.html',
 })
 export class MainLayoutComponent implements OnInit {

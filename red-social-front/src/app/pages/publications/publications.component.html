@@ -7,7 +7,7 @@
   <form [formGroup]="form" (ngSubmit)="publicar()" novalidate>
     <div class="form-group">
       <label for="titulo">Título</label>
-      <input id="titulo" class="input" formControlName="titulo" maxlength="100"
+      <input id="titulo" class="input" formControlName="titulo" maxlength="100" [appLimiteCaracteres]="100"
              [class.invalido]="f.titulo.touched && f.titulo.invalid" />
       @if (f.titulo.touched && f.titulo.invalid) {
         <p class="error">El título es obligatorio (máximo 100 caracteres)</p>
@@ -16,7 +16,7 @@
 
     <div class="form-group">
       <label for="mensaje">Mensaje</label>
-      <textarea id="mensaje" class="input" formControlName="mensaje" rows="3" maxlength="1000"
+      <textarea id="mensaje" class="input" formControlName="mensaje" rows="3" maxlength="1000" [appLimiteCaracteres]="1000"
                 placeholder="¿Qué querés compartir?"
                 [class.invalido]="f.mensaje.touched && f.mensaje.invalid"></textarea>
       @if (f.mensaje.touched && f.mensaje.invalid) {

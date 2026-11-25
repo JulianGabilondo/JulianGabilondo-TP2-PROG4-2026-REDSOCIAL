@@ -32,8 +32,10 @@ export class PublicationCardComponent {
   );
 
   // Solo el autor ve el botón de eliminar (el administrador se agrega en el Sprint 4)
-  esMia = computed(() => this.publicacion().usuario._id === this.auth.usuario()?._id);
-
+    esMia = computed(() => this.publicacion().usuario._id === this.auth.usuario()?._id);
+  // SPRINT 4: el administrador puede dar de baja cualquier publicación
+  esAdmin = computed(() => this.auth.usuario()?.perfil === 'administrador');
+  puedeEliminar = computed(() => this.esMia() || this.esAdmin());
   procesando = signal(false);
   modal = signal<ModalDatos | null>(null);
 
@@ -59,16 +61,19 @@ export class PublicationCardComponent {
     });
   }
 
-  // Abre el modal de confirmación (en lugar de confirm() o alert())
-  pedirConfirmacion() {
+    pedirConfirmacion() {
+    // SPRINT 4: si la publicación es de otro usuario, quien la elimina es un administrador
+    const deOtroUsuario = !this.esMia();
     this.modal.set({
       titulo: 'Eliminar publicación',
-      mensaje: '¿Seguro que querés eliminar esta publicación? Esta acción no se puede deshacer.',
+      mensaje: deOtroUsuario
+        ? `Vas a eliminar, como administrador, la publicación de @${this.publicacion().usuario.nombreUsuario}. La publicación y sus comentarios dejarán de estar disponibles.`
+        : '¿Seguro que querés eliminar esta publicación? Esta acción no se puede deshacer.',
       tipo: 'info',
       confirmar: true,
     });
   }
-
+  
   confirmarEliminacion() {
     this.modal.set(null);
     this.procesando.set(true);

@@ -52,9 +52,11 @@ export class CommentsService {
   async update(publicationId: string, commentId: string, dto: CreateCommentDto, userId: string) {
     await this.ensurePublicationActive(publicationId);
 
+    // Los ids se convierten a ObjectId porque en la base están guardados así
+    // (con el id como texto la búsqueda no encontraba el comentario y respondía 404)
     const comentario = await this.comentarioModel.findOne({
-      _id: commentId,
-      publicacion: publicationId,
+      _id: new Types.ObjectId(commentId),
+      publicacion: new Types.ObjectId(publicationId),
       activo: true,
     });
     if (!comentario) {

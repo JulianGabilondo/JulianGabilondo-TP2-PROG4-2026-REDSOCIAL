@@ -24,7 +24,7 @@
         <div>
           <dt>Fecha de nacimiento</dt>
           <!-- Se fuerza UTC para que no se corra un día por la zona horaria -->
-          <dd>{{ u.fechaNacimiento | date: 'dd/MM/yyyy' : 'UTC' }}</dd>
+          <dd>{{ u.fechaNacimiento | date: 'dd/MM/yyyy' : 'UTC' }} ({{ u.fechaNacimiento | edad }})</dd>
         </div>
         <div>
           <dt>Descripción</dt>

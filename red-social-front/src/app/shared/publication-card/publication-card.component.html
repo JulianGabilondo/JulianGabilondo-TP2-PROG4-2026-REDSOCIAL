@@ -13,9 +13,10 @@
       <span>&#64;{{ p.usuario.nombreUsuario }} · {{ p.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
     </div>
 
-    @if (esMia()) {
+     <!-- SPRINT 4: el autor o un administrador pueden eliminarla -->
+    @if (puedeEliminar()) {
       <button type="button" class="btn btn-ghost btn-chico" [disabled]="procesando()" (click)="pedirConfirmacion()">
-        Eliminar
+        {{ esMia() ? 'Eliminar' : 'Eliminar (admin)' }}
       </button>
     }
   </header>

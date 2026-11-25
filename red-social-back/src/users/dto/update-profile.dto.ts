@@ -1,8 +1,7 @@
 import { IsDateString, IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
-// SPRINT 2: datos que se pueden editar del perfil. Todos son opcionales.
-// No incluye "perfil" (rol) ni "password": como el ValidationPipe tiene forbidNonWhitelisted,
-// si alguien los manda el back responde 400.
+// Datos que se pueden editar del perfil. Todos son opcionales.
+// No incluye "perfil" (rol) ni "password": si alguien los manda el back responde 400.
 export class UpdateProfileDto {
   @IsOptional()
   @IsNotEmpty({ message: 'El nombre no puede estar vacío' })

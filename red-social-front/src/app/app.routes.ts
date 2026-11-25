@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
 import { MainLayoutComponent } from './shared/main-layout/main-layout.component';
+import { adminGuard } from './core/admin.guard';
 
 export const routes: Routes = [
   // SPRINT 3: al iniciar la app se muestra la pantalla de carga, que valida el token
@@ -43,6 +44,24 @@ export const routes: Routes = [
       {
         path: 'perfil',
         loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent),
+      },
+       // SPRINT 4: dashboard, solo para administradores
+      { path: 'dashboard', pathMatch: 'full', redirectTo: 'dashboard/usuarios' },
+      {
+        path: 'dashboard/usuarios',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/dashboard-usuarios/dashboard-usuarios.component').then(
+            (m) => m.DashboardUsuariosComponent,
+          ),
+      },
+      {
+        path: 'dashboard/estadisticas',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/dashboard-estadisticas/dashboard-estadisticas.component').then(
+            (m) => m.DashboardEstadisticasComponent,
+          ),
       },
     ],
   },

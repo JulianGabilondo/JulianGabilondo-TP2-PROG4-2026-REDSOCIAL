@@ -7,18 +7,19 @@ import { PublicationsController } from './publications.controller';
 import { PublicationsService } from './publications.service';
 import { Comentario, ComentarioSchema } from './schemas/comentario.schema';
 import { Publication, PublicationSchema } from './schemas/publication.schema';
+import { StatsController } from './stats.controller';
+import { StatsService } from './stats.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Publication.name, schema: PublicationSchema },
-      // SPRINT 3: se registra el esquema de comentarios
       { name: Comentario.name, schema: ComentarioSchema },
     ]),
     CloudinaryModule,
   ],
-  // SPRINT 3: se agrega el controller de comentarios
-  controllers: [PublicationsController, CommentsController],
-  providers: [PublicationsService, CommentsService],
+  // SPRINT 4: se agrega el controller de estadísticas
+  controllers: [PublicationsController, CommentsController, StatsController],
+  providers: [PublicationsService, CommentsService, StatsService],
 })
 export class PublicationsModule {}

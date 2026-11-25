@@ -35,8 +35,10 @@ export class AuthService {
       fotoPerfil = await this.cloudinaryService.uploadImage(file, 'red-social/perfiles');
     }
 
-    // 3) Crear el usuario (la contraseña se encripta en UsersService)
-    const user = await this.usersService.create(dto, fotoPerfil);
+    // 3) Crear el usuario (la contraseña se encripta en UsersService).
+    // SPRINT 4: quien se registra por su cuenta SIEMPRE es "usuario". Solo un administrador
+    // puede crear otros administradores (desde el dashboard), así que se ignora el "perfil" recibido.
+    const user = await this.usersService.create({ ...dto, perfil: 'usuario' }, fotoPerfil);
 
     return {
       message: 'Usuario registrado exitosamente',
@@ -57,6 +59,13 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    // SPRINT 4: un usuario deshabilitado no puede ingresar y se le informa el motivo
+    if (user.activo === false) {
+      throw new UnauthorizedException(
+        'Tu usuario está deshabilitado y no está autorizado a ingresar a la aplicación. Comunicate con un administrador.',
+      );
+    }
+
     return {
       message: 'Login exitoso',
       user: this.usersService.toResponse(user), // todos los datos del usuario
@@ -74,7 +83,7 @@ export class AuthService {
     return { message: 'Token válido', user: this.usersService.toResponse(user) };
   }
 
-  // SPRINT 3: refrescar. Devuelve un token nuevo con la MISMA payload y 15 minutos de vencimiento.
+  // SPRINT 3: refrescar. Devuelve un token nuevo con la MISMA payload y el vencimiento de AuthModule.
   refresh(user: JwtUser) {
     const token = this.sign({
       sub: user.userId,
@@ -95,7 +104,7 @@ export class AuthService {
     });
   }
 
-  // Firma el token (vence a los 15 minutos, configurado en AuthModule)
+  // Firma el token (el vencimiento se configura en AuthModule)
   private sign(payload: TokenPayload): string {
     return this.jwtService.sign(payload);
   }

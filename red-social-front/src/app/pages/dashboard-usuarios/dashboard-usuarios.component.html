@@ -1,0 +1,211 @@
+<div class="encabezado-dashboard">
+  <h1 class="titulo-pagina">Usuarios</h1>
+  <button type="button" class="btn btn-primary btn-auto" (click)="alternarFormulario()">
+    {{ mostrandoFormulario() ? 'Cerrar formulario' : '+ Nuevo usuario' }}
+  </button>
+</div>
+
+<!-- SPRINT 4: formulario de alta de usuarios -->
+@if (mostrandoFormulario()) {
+  <section class="tarjeta nueva-publicacion">
+    <h2>Nuevo usuario</h2>
+
+    <form [formGroup]="form" (ngSubmit)="crear()" novalidate>
+      <div class="fila">
+        <div class="form-group">
+          <label for="nu-nombre">Nombre</label>
+          <input id="nu-nombre" class="input" formControlName="nombre"
+                 [class.invalido]="f.nombre.touched && f.nombre.invalid" />
+          @if (f.nombre.touched && f.nombre.errors?.['required']) {
+            <p class="error">El nombre es obligatorio</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="nu-apellido">Apellido</label>
+          <input id="nu-apellido" class="input" formControlName="apellido"
+                 [class.invalido]="f.apellido.touched && f.apellido.invalid" />
+          @if (f.apellido.touched && f.apellido.errors?.['required']) {
+            <p class="error">El apellido es obligatorio</p>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="nu-correo">Correo electrónico</label>
+        <input id="nu-correo" type="email" class="input" formControlName="correo" autocomplete="off"
+               [class.invalido]="f.correo.touched && f.correo.invalid" />
+        @if (f.correo.touched && f.correo.errors?.['required']) {
+          <p class="error">El correo es obligatorio</p>
+        }
+        @if (f.correo.touched && f.correo.errors?.['email']) {
+          <p class="error">Ingresá un correo válido (ej: nombre@correo.com)</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="nu-usuario">Nombre de usuario</label>
+        <input id="nu-usuario" class="input" formControlName="nombreUsuario" autocomplete="off"
+               [class.invalido]="f.nombreUsuario.touched && f.nombreUsuario.invalid" />
+        @if (f.nombreUsuario.touched && f.nombreUsuario.errors?.['required']) {
+          <p class="error">El nombre de usuario es obligatorio</p>
+        }
+        @if (f.nombreUsuario.touched && f.nombreUsuario.errors?.['minlength']) {
+          <p class="error">Debe tener al menos 3 caracteres</p>
+        }
+      </div>
+
+      <div class="fila">
+        <div class="form-group">
+          <label for="nu-password">Contraseña</label>
+          <input id="nu-password" type="password" class="input" formControlName="password"
+                 autocomplete="new-password"
+                 [class.invalido]="f.password.touched && f.password.invalid" />
+          @if (f.password.touched && f.password.errors) {
+            @if (f.password.errors['required']) { <p class="error">La contraseña es obligatoria</p> }
+            @if (f.password.errors['minlength']) { <p class="error">Debe tener al menos 8 caracteres</p> }
+            @if (f.password.errors['sinMayuscula']) { <p class="error">Debe incluir al menos una mayúscula</p> }
+            @if (f.password.errors['sinNumero']) { <p class="error">Debe incluir al menos un número</p> }
+          } @else {
+            <p class="ayuda">Mínimo 8 caracteres, una mayúscula y un número</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="nu-repetir">Repetir contraseña</label>
+          <input id="nu-repetir" type="password" class="input" formControlName="repetirPassword"
+                 autocomplete="new-password"
+                 [class.invalido]="f.repetirPassword.touched && (f.repetirPassword.invalid || form.hasError('noCoinciden'))" />
+          @if (f.repetirPassword.touched && f.repetirPassword.errors?.['required']) {
+            <p class="error">Repetí la contraseña</p>
+          } @else if (f.repetirPassword.touched && form.hasError('noCoinciden')) {
+            <p class="error">Las contraseñas no coinciden</p>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="nu-fecha">Fecha de nacimiento</label>
+        <input id="nu-fecha" type="date" class="input" formControlName="fechaNacimiento"
+               [class.invalido]="f.fechaNacimiento.touched && f.fechaNacimiento.invalid" />
+        @if (f.fechaNacimiento.touched && f.fechaNacimiento.errors?.['required']) {
+          <p class="error">La fecha de nacimiento es obligatoria</p>
+        }
+        @if (f.fechaNacimiento.touched && f.fechaNacimiento.errors?.['fechaFutura']) {
+          <p class="error">La fecha no puede ser futura</p>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="nu-descripcion">Descripción breve</label>
+        <textarea id="nu-descripcion" class="input" formControlName="descripcion" rows="3"
+                  [appLimiteCaracteres]="200"
+                  [class.invalido]="f.descripcion.invalid"></textarea>
+        @if (f.descripcion.errors?.['maxlength']) {
+          <p class="error">La descripción no puede superar los 200 caracteres</p>
+        }
+      </div>
+
+      <!-- Perfil del nuevo usuario: dos radio buttons -->
+      <fieldset class="form-group grupo-radios">
+        <legend>Perfil</legend>
+        <label class="radio">
+          <input type="radio" formControlName="perfil" value="usuario" /> Usuario
+        </label>
+        <label class="radio">
+          <input type="radio" formControlName="perfil" value="administrador" /> Administrador
+        </label>
+      </fieldset>
+
+      <div class="form-group">
+        <label for="nu-foto">Foto de perfil</label>
+        <input id="nu-foto" type="file" class="input" accept="image/*" (change)="onArchivo($event)" />
+        @if (errorArchivo()) {
+          <p class="error">{{ errorArchivo() }}</p>
+        }
+        @if (vistaPrevia(); as src) {
+          <img class="avatar vista-previa" [src]="src" alt="Vista previa de la foto de perfil" />
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="creando()">
+        {{ creando() ? 'Creando usuario...' : 'Crear usuario' }}
+      </button>
+    </form>
+  </section>
+}
+
+<!-- SPRINT 4: listado de usuarios -->
+<section class="tarjeta">
+  @if (cargando()) {
+    <p class="ayuda">Cargando usuarios...</p>
+  } @else if (errorCarga()) {
+    <p class="error">{{ errorCarga() }}</p>
+  } @else {
+    <p class="ayuda resumen-usuarios">
+      {{ usuarios().length }} usuarios en total · {{ habilitados() }} habilitados
+    </p>
+
+    <div class="tabla-scroll">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Correo</th>
+            <th>Perfil</th>
+            <th>Edad</th>
+            <th>Descripción</th>
+            <th>Alta</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of usuarios(); track u._id) {
+            <tr appResaltar [class.fila-deshabilitada]="!u.activo">
+              <td>
+                <div class="celda-usuario">
+                  @if (u.fotoPerfil) {
+                    <img class="avatar avatar-chico" [src]="u.fotoPerfil" alt="Foto de {{ u.nombre }}" />
+                  } @else {
+                    <div class="avatar avatar-chico">{{ u.nombre.charAt(0) }}{{ u.apellido.charAt(0) }}</div>
+                  }
+                  <div>
+                    <strong>{{ u.nombre }} {{ u.apellido }}</strong>
+                    <span class="ayuda">&#64;{{ u.nombreUsuario }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>{{ u.correo }}</td>
+              <td><span class="etiqueta">{{ u.perfil }}</span></td>
+              <td>{{ u.fechaNacimiento | edad }}</td>
+              <td [title]="u.descripcion">{{ u.descripcion | recortar: 40 }}</td>
+              <td>{{ u.createdAt | tiempoRelativo }}</td>
+              <td>
+                <span class="estado" [class.habilitado]="u.activo">
+                  {{ u.activo ? 'Habilitado' : 'Deshabilitado' }}
+                </span>
+              </td>
+              <td>
+                @if (u._id === auth.usuario()?._id) {
+                  <span class="ayuda">Tu cuenta</span>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn btn-ghost btn-chico"
+                    [disabled]="procesandoId() === u._id"
+                    (click)="pedirConfirmacion(u)"
+                  >
+                    {{ u.activo ? 'Deshabilitar' : 'Habilitar' }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+<app-modal [datos]="modal()" (cerrar)="cerrarModal()" (aceptar)="confirmarCambio()" />
