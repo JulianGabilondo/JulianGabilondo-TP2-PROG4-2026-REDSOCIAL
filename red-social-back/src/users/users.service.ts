@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -11,7 +11,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    // SPRINT 2: se necesita para subir la nueva foto de perfil
+    // Se usa para subir la foto de perfil (edición de perfil y alta de usuarios por un administrador)
     private cloudinaryService: CloudinaryService,
   ) {}
 
@@ -57,12 +57,12 @@ export class UsersService {
       .exec();
   }
 
-  // SPRINT 2: busca un usuario por id
+  // Busca un usuario por id
   findById(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).exec();
   }
 
-  // SPRINT 2: edita el perfil del usuario logueado
+  // Edición del perfil del usuario logueado
   async updateProfile(
     id: string,
     dto: UpdateProfileDto,
@@ -104,6 +104,42 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  // SPRINT 4: listado de todos los usuarios (para el dashboard de administración).
+  // La contraseña no se devuelve porque el esquema la excluye por defecto (select: false).
+  async findAll() {
+    const usuarios = await this.userModel.find().sort({ createdAt: -1 }).select('-__v').lean();
+    // Los usuarios anteriores al Sprint 4 no tienen "activo": se informan como habilitados
+    return usuarios.map((u) => ({ ...u, activo: u.activo !== false }));
+  }
+
+  // SPRINT 4: alta de un usuario por un administrador (puede elegir su perfil)
+  async createByAdmin(dto: CreateUserDto, file?: Express.Multer.File): Promise<UserDocument> {
+    await this.ensureUnique(dto.correo, dto.nombreUsuario);
+
+    let fotoPerfil = '';
+    if (file) {
+      fotoPerfil = await this.cloudinaryService.uploadImage(file, 'red-social/perfiles');
+    }
+    return this.create(dto, fotoPerfil);
+  }
+
+  // SPRINT 4: baja lógica (activo = false) y alta lógica (activo = true) de un usuario
+  async setActive(id: string, activo: boolean, adminId: string): Promise<UserDocument> {
+    // Un administrador no puede deshabilitarse a sí mismo (se quedaría sin acceso)
+    if (!activo && id === adminId) {
+      throw new BadRequestException('No podés deshabilitar tu propia cuenta');
+    }
+
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    user.activo = activo;
+    await user.save();
+    return user;
   }
 
   // Convierte el documento a un objeto "seguro" para devolver al front (sin password ni __v)

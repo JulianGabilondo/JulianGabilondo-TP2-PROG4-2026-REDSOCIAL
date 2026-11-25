@@ -4,6 +4,9 @@
   <nav>
     <a routerLink="/publicaciones" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">Publicaciones</a>
     <a routerLink="/perfil" routerLinkActive="activo">Mi perfil</a>
+    <!-- SPRINT 4: enlaces del dashboard, solo se muestran a los administradores -->
+    <a *appSoloAdmin routerLink="/dashboard/usuarios" routerLinkActive="activo">Usuarios</a>
+    <a *appSoloAdmin routerLink="/dashboard/estadisticas" routerLinkActive="activo">Estadísticas</a>
   </nav>
 
   <div class="usuario">

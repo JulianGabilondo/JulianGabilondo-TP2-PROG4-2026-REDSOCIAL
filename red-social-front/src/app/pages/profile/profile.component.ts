@@ -10,13 +10,14 @@ import { fechaNoFutura } from '../../core/validators';
 import { ModalComponent, ModalDatos } from '../../shared/modal/modal.component';
 import { PublicationCardComponent } from '../../shared/publication-card/publication-card.component';
 import { CommentsComponent } from '../../shared/comments/comments.component';
+import { EdadPipe } from '../../shared/pipes/edad.pipe';
 
 // Pantalla Mi Perfil: datos del usuario logueado.
 // SPRINT 2: últimas 3 publicaciones y edición del perfil.
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [DatePipe, ReactiveFormsModule, RouterLink, PublicationCardComponent, CommentsComponent, ModalComponent],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink, PublicationCardComponent, CommentsComponent, ModalComponent, EdadPipe],
   templateUrl: './profile.component.html',
 })
 export class ProfileComponent implements OnInit {

@@ -5,12 +5,13 @@ import { mensajeError } from '../../core/http-errors';
 import { Orden, Publicacion, PublicationsService } from '../../core/publications.service';
 import { ModalComponent, ModalDatos } from '../../shared/modal/modal.component';
 import { PublicationCardComponent } from '../../shared/publication-card/publication-card.component';
+import { LimiteCaracteresDirective } from '../../shared/directives/limite-caracteres.directive';
 
 // SPRINT 2: listado de publicaciones con orden, paginación y alta de publicaciones
 @Component({
   selector: 'app-publications',
   standalone: true,
-  imports: [ReactiveFormsModule, PublicationCardComponent, ModalComponent],
+  imports: [ReactiveFormsModule, PublicationCardComponent, ModalComponent, LimiteCaracteresDirective],
   templateUrl: './publications.component.html',
 })
 export class PublicationsComponent implements OnInit {

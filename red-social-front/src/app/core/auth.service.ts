@@ -30,6 +30,10 @@ export class AuthService {
   // Usuario logueado (se recupera del navegador si ya había iniciado sesión)
   usuario = signal<Usuario | null>(this.leerUsuario());
 
+  // SPRINT 3: indica si el token ya se validó contra el back (ruta authorize) en esta carga de la app.
+  // Mientras sea false, el guard manda a la pantalla de carga antes de mostrar las pantallas internas.
+  sesionValidada = false;
+
   // SPRINT 3: el registro también guarda el token (queda con la sesión iniciada)
   register(datos: FormData): Observable<AuthResponse> {
     return this.http
@@ -45,12 +49,14 @@ export class AuthService {
   }
 
   // SPRINT 3: valida el token guardado contra el back (POST /auth/authorize).
-  // Si es válido, actualiza los datos del usuario; si no, el back responde 401.
+  // Si es válido, actualiza los datos del usuario y marca la sesión como validada;
+  // si no, el back responde 401.
   autorizar(): Observable<{ message: string; user: Usuario }> {
     return this.http.post<{ message: string; user: Usuario }>(`${this.api}/authorize`, {}).pipe(
       tap((res) => {
         localStorage.setItem('usuario', JSON.stringify(res.user));
         this.usuario.set(res.user);
+        this.sesionValidada = true;
       }),
     );
   }
@@ -78,13 +84,16 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
     this.usuario.set(null);
+    this.sesionValidada = false; // la próxima sesión tendrá que validarse de nuevo
   }
 
-  // Guarda token y usuario en el navegador
+  // Guarda token y usuario en el navegador. Es un token nuevo, así que falta validarlo
+  // (lo hace la pantalla de carga antes de mostrar Publicaciones).
   private guardarSesion(res: AuthResponse): void {
     localStorage.setItem('token', res.token);
     localStorage.setItem('usuario', JSON.stringify(res.user));
     this.usuario.set(res.user);
+    this.sesionValidada = false;
   }
 
   private leerUsuario(): Usuario | null {

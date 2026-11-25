@@ -38,6 +38,11 @@ export class User {
   // Por defecto "usuario"; puede ser "administrador"
   @Prop({ default: 'usuario', enum: ['usuario', 'administrador'] })
   perfil: string;
+
+  // SPRINT 4: baja lógica. false = usuario deshabilitado (no puede ingresar a la aplicación).
+  // Los usuarios creados antes del Sprint 4 no tienen este campo: se consideran habilitados.
+  @Prop({ default: true })
+  activo: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

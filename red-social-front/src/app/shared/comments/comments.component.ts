@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,6 +5,8 @@ import { AuthService } from '../../core/auth.service';
 import { Comentario, CommentsService } from '../../core/comments.service';
 import { mensajeError } from '../../core/http-errors';
 import { ModalComponent, ModalDatos } from '../modal/modal.component';
+import { LimiteCaracteresDirective } from '../directives/limite-caracteres.directive';
+import { TiempoRelativoPipe } from '../pipes/tiempo-relativo.pipe';
 
 // SPRINT 3: comentarios de una publicación.
 // - Los más recientes van primero, uno debajo del otro.
@@ -14,7 +15,7 @@ import { ModalComponent, ModalDatos } from '../modal/modal.component';
 @Component({
   selector: 'app-comments',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe, ModalComponent],
+  imports: [ReactiveFormsModule, TiempoRelativoPipe, LimiteCaracteresDirective, ModalComponent],
   templateUrl: './comments.component.html',
 })
 export class CommentsComponent implements OnInit {

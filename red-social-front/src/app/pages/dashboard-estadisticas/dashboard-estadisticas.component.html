@@ -1,0 +1,27 @@
+<h1 class="titulo-pagina">Estadísticas</h1>
+
+<!-- SPRINT 4: cada estadística tiene su propio selector de lapso de tiempo -->
+<app-stat-card
+  titulo="Publicaciones por usuario"
+  descripcion="Cantidad de publicaciones que realizó cada usuario en el lapso elegido."
+  tipo="pie"
+  nombreDatos="Publicaciones"
+  [fuente]="publicacionesPorUsuario"
+/>
+
+<app-stat-card
+  titulo="Comentarios por día"
+  descripcion="Cantidad de comentarios realizados en el lapso elegido, día por día."
+  tipo="line"
+  nombreDatos="Comentarios"
+  [fuente]="comentariosPorDia"
+/>
+
+<app-stat-card
+  titulo="Comentarios por publicación"
+  descripcion="Las 10 publicaciones con más comentarios en el lapso elegido."
+  tipo="bar"
+  nombreDatos="Comentarios"
+  [horizontal]="true"
+  [fuente]="comentariosPorPublicacion"
+/>

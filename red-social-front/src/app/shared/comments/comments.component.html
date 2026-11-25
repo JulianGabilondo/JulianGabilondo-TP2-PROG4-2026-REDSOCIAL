@@ -12,6 +12,7 @@
         maxlength="500"
         placeholder="Escribí un comentario..."
         [formControl]="nuevo"
+        [appLimiteCaracteres]="500"
         [class.invalido]="nuevo.touched && nuevo.invalid"
       ></textarea>
       @if (nuevo.touched && nuevo.invalid) {
@@ -42,7 +43,7 @@
           <div class="publicacion-autor">
             <strong>{{ c.usuario.nombre }} {{ c.usuario.apellido }}</strong>
             <span>
-              &#64;{{ c.usuario.nombreUsuario }} · {{ c.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+              &#64;{{ c.usuario.nombreUsuario }} · {{ c.createdAt | tiempoRelativo }}
               <!-- Un comentario editado anuncia que fue editado -->
               @if (c.modificado) {
                 <em class="editado">(editado)</em>
@@ -57,6 +58,7 @@
 
         @if (editandoId() === c._id) {
           <textarea class="input" rows="2" maxlength="500" [formControl]="edicion"
+                    [appLimiteCaracteres]="500"
                     [class.invalido]="edicion.touched && edicion.invalid"></textarea>
           @if (edicion.touched && edicion.invalid) {
             <p class="error">El comentario no puede estar vacío (máximo 500 caracteres)</p>
